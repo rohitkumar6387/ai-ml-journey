@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grammar Corrector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #E8EBE0;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2E6F40;
+        }
+
+        h3 {
+            text-align: center;
+            margin-top: -20px;
+            margin-bottom: 40px;
+        }
+
+        form {
+            display:flex;
+            flex-direction:column;
+            gap: 15px;
+        }
+
+        textarea {
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #2E6F40;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #68BA7F;
+        }
+
+        #resultContainer {
+            margin-top: 20px;
+            background: #D5F3D8;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        #corrector-heading {
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Grammar Corrector</h1>
+        <h3>using HuggingFace Transformer</h3>
+        <p>Write incorrect sentence below :-</p>
+
+        <form id="corrector-form">
+            <textarea id="wrongText" placeholder="Enter your sentence here..." required></textarea>
+            <button type="submit" id="submitButton">Correct</button>
+        </form>
+
+        <div id="resultContainer">
+            <h3 id="corrector-heading">Correct Sentence</h3>
+            <p id="correctedText"></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("corrector-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+        
+            const textInput = document.getElementById("wrongText");
+            const resultContainer = document.getElementById("resultContainer");
+            const submitButton = document.getElementById("submitButton");
+            const correctedText = document.getElementById("correctedText");
+        
+            const inputValue = textInput.value.trim();
+            if (!inputValue) return;
+        
+            correctedText.innerText = "Processing...";
+            submitButton.disabled = true;
+        
+            try {
+                const response = await fetch("/correct", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ wrong_text: inputValue }),
+                });
+        
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+        
+                const data = await response.json();
+                correctedText.innerText = data.correct || "No summary returned.";
+            } catch (err) {
+                
+                correctedText.innerText = `Error: ${err.message}`;
+            } finally {
+                
+                submitButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
