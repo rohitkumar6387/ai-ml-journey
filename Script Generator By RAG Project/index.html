@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Script Generator</title>
+    <style>
+        * {
+            box-sizing:border-box;
+            margin:0;
+            padding:0;
+        }
+
+        body {
+            font-family:'Segoe UI', Arial, sans-serif;
+            background-color:#f0f2f5;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            min-height:100vh;
+            padding:20px;
+        }
+
+        .container {
+            background:#ffffff;
+            width:100%;
+            max-width:700px;
+            padding:30px;
+            border-radius:12px;
+            box-shadow:0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            text-align:center;
+            margin-bottom:20px;
+            color:#1a73e8;
+            font-size:26px;
+        }
+
+        .select-box {
+            margin-bottom: 15px;
+        }
+
+        select {
+            width:100%;
+            padding:10px;
+            border:2px solid #cbd5e1;
+            border-radius:8px;
+            font-size:16px;
+            outline:none;
+            font-weight:600;
+            color:#333;
+        }
+
+        label {
+            font-weight:600;
+            margin-bottom:6px;
+            display:block;
+            color:#475569;
+        }
+
+        button {
+            width:100%;
+            background-color:#1a73e8;
+            color:white;
+            padding:14px;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+            font-weight:600;
+            font-size:16px;
+            transition:background 0.2s;
+        }
+
+        textarea {
+            width:100%;
+            height:120px;
+            padding:12px;
+            border:2px solid #cdb5e1;
+            border-radius:8px;
+            font-size:16px;
+            resize:none;
+            outline:none;
+            margin-bottom:15px;
+            transition:border-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color:#1a73e8;
+        }
+
+        button:hover {
+            background-color:#1557b0;
+        }
+
+        button:disabled {
+            background-color:#cccccc;
+            cursor:not-allowed;
+        }
+
+        .result-box {
+            margin-top:25px;
+            padding:15px;
+            background-color:#e8f0fe;
+            border:1px solid #acebfa;
+            border-radius:8px;
+
+        }
+
+        .result-title{
+            font-weight:700;
+            color:#174ea6;
+            margin-bottom:5px;
+        }
+
+        #generatedOutput{
+            font-size:17px;
+            color:#202124;
+            line-height:1.5;
+            font-weight:500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Cption Generator for Vedio Content</h2>
+
+        <label for="inputText">Enter your Content Script here</label>
+        <form id="form-name">
+        <textarea id="inputText" placeholder="Type here...."></textarea>
+
+        <button type="submit" id="submitBtn">Caption</button>
+        </form>
+        <div id="resultContainer" class="result-box">
+            <div class="result-title">Generated Caption:</div>
+            <p id="generatedOutput"></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("form-name").addEventListener("submit", async (e) => {
+            e.preventDefault(); 
+            const text = document.getElementById("inputText").value.trim();
+            const resultContainer = document.getElementById("resultContainer");
+            const generatedOutput = document.getElementById("generatedOutput");
+            const submitBtn = document.getElementById("submitBtn");
+
+            if (!text) {
+                alert("please enter some text!");
+                return;
+            }
+
+            generatedOutput.innerText = "Generating...";
+            submitBtn.disabled = true;
+            
+            try {
+                const response = await fetch("/generate",{
+                    method:"POST",
+                    headers: {"Content-Type":"application/json"},
+                    body: JSON.stringify({ text:text })
+                });
+
+                if(!response.ok){
+                    throw new error("API request failed!");
+                }
+
+                const data = await response.json();
+                generatedOutput.innerText = data.generated_text;
+            } catch (error) {
+                console.error("error:",error);
+                generatedOutput.innerText = "Error:Generator not reponding properly";
+            } finally{
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
